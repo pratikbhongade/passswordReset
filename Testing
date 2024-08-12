@@ -1,0 +1,39 @@
+import pyodbc
+
+# Define the connection string
+conn_str = (
+    r'DRIVER={SQL Server};'
+    r'SERVER=SDC01ASRSQTD01S\TSQLINST01;'
+    r'DATABASE=ASPIRE;'
+    r'Trusted_Connection=yes;'
+)
+
+# Function to check if user_id exists in SecurityUser table
+def check_user_id(user_id):
+    try:
+        connection = pyodbc.connect(conn_str)
+        cursor = connection.cursor()
+        
+        # SQL query to check for the user_id
+        query = "SELECT * FROM SecurityUser WHERE user_id = ?"
+        cursor.execute(query, user_id)
+        result = cursor.fetchone()
+        
+        if result:
+            print(f"User ID {user_id} found in the database.")
+            for row in result:
+                print(row)
+        else:
+            print(f"User ID {user_id} not found in the database.")
+    
+    except Exception as e:
+        print("Error:", e)
+    
+    finally:
+        # Close the connection
+        if 'connection' in locals():
+            connection.close()
+
+# Prompt the user to enter a user_id
+user_id_input = input("Please enter the user_id: ")
+check_user_id(user_id_input)
