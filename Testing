@@ -21,10 +21,32 @@ def check_user_id(user_id):
         
         if result:
             print(f"User ID {user_id} found in the database.")
-            for row in result:
-                print(row)
+            return True
         else:
             print(f"User ID {user_id} not found in the database.")
+            return False
+    
+    except Exception as e:
+        print("Error:", e)
+        return False
+    
+    finally:
+        # Close the connection
+        if 'connection' in locals():
+            connection.close()
+
+# Function to update the password for a given user_id
+def update_password(user_id, new_password):
+    try:
+        connection = pyodbc.connect(conn_str)
+        cursor = connection.cursor()
+        
+        # SQL query to update the password
+        query = "UPDATE SecurityUser SET password = ? WHERE user_id = ?"
+        cursor.execute(query, (new_password, user_id))
+        connection.commit()
+        
+        print(f"Password for User ID {user_id} has been updated.")
     
     except Exception as e:
         print("Error:", e)
@@ -34,6 +56,14 @@ def check_user_id(user_id):
         if 'connection' in locals():
             connection.close()
 
-# Prompt the user to enter a user_id
+# Main code to prompt user and perform actions
 user_id_input = input("Please enter the user_id: ")
-check_user_id(user_id_input)
+
+if check_user_id(user_id_input):
+    update_choice = input("Do you want to update the password? (yes/no): ").strip().lower()
+    
+    if update_choice == 'yes':
+        new_password = 'En$2a$10$n4XPILjNXBKlcS5FkhxPE.vCYW5KH1GDKAnoaea8LsFkfpuInrbm2'
+        update_password(user_id_input, new_password)
+    else:
+        print("Password update skipped.")
